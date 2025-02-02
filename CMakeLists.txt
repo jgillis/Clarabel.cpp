@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
+include(GNUInstallDirs)
+
 #----------------------------------------------
 # Clarabel feature configuration
 #----------------------------------------------
@@ -59,3 +61,5 @@ if(CLARABEL_BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif()
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

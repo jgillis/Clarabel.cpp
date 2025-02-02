@@ -106,3 +106,10 @@ add_dependencies(libclarabel_c_static libclarabel_c)
 target_link_libraries(libclarabel_c_shared INTERFACE ${LIBCLARABEL_C_SHARED_PATH})
 target_include_directories(libclarabel_c_shared INTERFACE ${CMAKE_SOURCE_DIR}/include)
 add_dependencies(libclarabel_c_shared libclarabel_c)
+
+# Install manually, since CMake doesn't track custom targets
+install(FILES
+    ${LIBCLARABEL_C_SHARED_PATH}
+    ${LIBCLARABEL_C_STATIC_PATH}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
