@@ -17,7 +17,7 @@ foreach(EXAMPLE_NAME ${CPP_EXAMPLES})
   target_compile_features("cpp_${EXAMPLE_NAME}" PRIVATE cxx_std_11) # Use C++11
 
   # Link to clarabel built from the Rust wrapper
-  target_link_libraries("cpp_${EXAMPLE_NAME}" PRIVATE libclarabel_c_shared)
+  target_link_libraries("cpp_${EXAMPLE_NAME}" PRIVATE libclarabel_c)
   # On Windows, copy the shared library and debug symbols to the output directory for targets that link to it
   if(WIN32)
     add_custom_command(

@@ -2,8 +2,7 @@
 project(clarabel_c VERSION ${CLARABEL_PROJECT_VERSION})
 
 # Define interface targets for the imported Rust library
-add_library(libclarabel_c_static INTERFACE)
-add_library(libclarabel_c_shared INTERFACE)
+add_library(libclarabel_c INTERFACE)
 
 # Set the build flags and output directory
 
@@ -33,8 +32,7 @@ if(NOT CLARABEL_FEATURE_SDP STREQUAL "none")
     set(CLARABEL_BUILD_FEATURES "${CLARABEL_BUILD_FEATURES},${CLARABEL_FEATURE_SDP}")
     
     # Define the FEATURE_SDP flag for all targets that link against clarabel_c
-    target_compile_definitions(libclarabel_c_static INTERFACE FEATURE_SDP)
-    target_compile_definitions(libclarabel_c_shared INTERFACE FEATURE_SDP)
+    target_compile_definitions(libclarabel_c INTERFACE FEATURE_SDP)
 endif()
 
 # FAER_SPARSE feature flag
@@ -44,8 +42,7 @@ if(CLARABEL_FEATURE_FAER_SPARSE)
     set(CLARABEL_BUILD_FEATURES "${CLARABEL_BUILD_FEATURES},faer-sparse")
     
     # Define the FEATURE_FAER_SPARSE flag for all targets that link against clarabel_c
-    target_compile_definitions(libclarabel_c_static INTERFACE FEATURE_FAER_SPARSE)
-    target_compile_definitions(libclarabel_c_shared INTERFACE FEATURE_FAER_SPARSE)
+    target_compile_definitions(libclarabel_c INTERFACE FEATURE_FAER_SPARSE)
 endif()
 
 # SERDE feature flag
@@ -55,8 +52,7 @@ if(CLARABEL_FEATURE_SERDE)
     set(CLARABEL_BUILD_FEATURES "${CLARABEL_BUILD_FEATURES},serde")
     
     # Define the FEATURE_SERDE flag for all targets that link against clarabel_c
-    target_compile_definitions(libclarabel_c_static INTERFACE FEATURE_SERDE)
-    target_compile_definitions(libclarabel_c_shared INTERFACE FEATURE_SERDE)
+    target_compile_definitions(libclarabel_c INTERFACE FEATURE_SERDE)
 endif()
 
 
@@ -72,7 +68,7 @@ message("-- Cargo options: " "${clarabel_c_build_flags}")
 
 # Add the cargo project as a custom target
 add_custom_target(
-    libclarabel_c
+    libclarabel_c_external
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/rust_wrapper
     # Commands for building the Rust library
     COMMAND cargo build ${clarabel_c_build_flags}
@@ -83,33 +79,35 @@ add_custom_target(
     COMMAND cbindgen --config cbindgen.toml --crate clarabel_c --output ./headers/clarabel.hpp
 )
 
-# Get the path to the Rust library for linking
-if(APPLE)
-    set(LIBCLARABEL_C_SHARED_PATH "${clarabel_c_output_directory}/libclarabel_c.dylib")
-    set(LIBCLARABEL_C_STATIC_PATH "${clarabel_c_output_directory}/libclarabel_c.a")
-elseif(UNIX)
-    set(LIBCLARABEL_C_SHARED_PATH "${clarabel_c_output_directory}/libclarabel_c.so")
-    set(LIBCLARABEL_C_STATIC_PATH "${clarabel_c_output_directory}/libclarabel_c.a")
-elseif(WIN32)
-    set(LIBCLARABEL_C_SHARED_PATH "${clarabel_c_output_directory}/clarabel_c.dll.lib")
-    set(LIBCLARABEL_C_STATIC_PATH "${clarabel_c_output_directory}/clarabel_c.lib")
+if(BUILD_SHARED_LIBS)
+  # Get the path to the Rust library for linking
+  if(APPLE)
+      set(LIBCLARABEL_C_PATH "${clarabel_c_output_directory}/libclarabel_c.dylib")
+  elseif(UNIX)
+      set(LIBCLARABEL_C_PATH "${clarabel_c_output_directory}/libclarabel_c.so")
+  elseif(WIN32)
+      set(LIBCLARABEL_C_PATH "${clarabel_c_output_directory}/clarabel_c.dll.lib")
+  endif()
+else()
+  # Get the path to the Rust library for linking
+  if(APPLE)
+      set(LIBCLARABEL_C_PATH "${clarabel_c_output_directory}/libclarabel_c.a")
+  elseif(UNIX)
+      set(LIBCLARABEL_C_PATH "${clarabel_c_output_directory}/libclarabel_c.a")
+  elseif(WIN32)
+      set(LIBCLARABEL_C_PATH "${clarabel_c_output_directory}/clarabel_c.lib")
+  endif()
 endif()
 
 # Wrap the Rust library in a CMake library target
 
 # Static library
-target_link_libraries(libclarabel_c_static INTERFACE ${LIBCLARABEL_C_STATIC_PATH})
-target_include_directories(libclarabel_c_static INTERFACE ${CMAKE_SOURCE_DIR}/include)
-add_dependencies(libclarabel_c_static libclarabel_c)
 
-# Shared library
-target_link_libraries(libclarabel_c_shared INTERFACE ${LIBCLARABEL_C_SHARED_PATH})
-target_include_directories(libclarabel_c_shared INTERFACE ${CMAKE_SOURCE_DIR}/include)
-add_dependencies(libclarabel_c_shared libclarabel_c)
+target_link_libraries(libclarabel_c INTERFACE ${LIBCLARABEL_C_PATH})
+target_include_directories(libclarabel_c INTERFACE ${CMAKE_SOURCE_DIR}/include)
+add_dependencies(libclarabel_c libclarabel_c_external)
 
 # Install manually, since CMake doesn't track custom targets
-install(FILES
-    ${LIBCLARABEL_C_SHARED_PATH}
-    ${LIBCLARABEL_C_STATIC_PATH}
+install(FILES ${LIBCLARABEL_C_PATH}
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )

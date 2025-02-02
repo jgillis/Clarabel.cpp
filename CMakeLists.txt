@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
+
+option(BUILD_SHARED_LIBS "Build shared instead of static libraries" ON)
+
 include(GNUInstallDirs)
 
 #----------------------------------------------

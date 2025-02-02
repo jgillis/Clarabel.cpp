@@ -32,7 +32,7 @@ add_executable(clarabel_cpp_tests
     sdp_chordal.cpp
 )
 target_link_libraries(clarabel_cpp_tests 
-    libclarabel_c_shared
+    libclarabel_c
     Eigen3::Eigen
     GTest::gtest_main
 )
