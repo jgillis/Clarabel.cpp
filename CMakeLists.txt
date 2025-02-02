@@ -63,3 +63,5 @@ if(CLARABEL_BUILD_TESTS)
 endif()
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+add_custom_target(build_all ALL DEPENDS libclarabel_c)
