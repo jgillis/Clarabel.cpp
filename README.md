@@ -125,7 +125,7 @@ Examples for both C and C++ are available in `examples/c` and `examples/cpp` and
 
 # Usage
 
-- Link to the `libclarabel_c_shared` (shared library) or `libclarabel_c_static` (static library) target in CMake.
+- Link to the `libclarabel_c` target in CMake. CMake option BUILD_SHARED_LIBS controls whether this library is built as a shared or static library.
 - `#include <Clarabel>` in your C/C++ source files.
 
 # License 🔍
