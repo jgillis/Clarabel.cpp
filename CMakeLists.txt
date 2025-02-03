@@ -43,7 +43,7 @@ option(CLARABEL_FEATURE_SERDE "Enable `faer-sparse` option" OFF)
 
 # Eigen3
 if (NOT TARGET Eigen3::Eigen)
-  find_package(Eigen3 CONFIG REQUIRED)
+  #find_package(Eigen3 CONFIG REQUIRED)
   message(STATUS "Clarabel.cpp: `Eigen3` package found.")
 else()
   message(STATUS "Clarabel.cpp: `Eigen3` package already exists.")

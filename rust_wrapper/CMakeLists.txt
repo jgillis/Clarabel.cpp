@@ -6,16 +6,28 @@ add_library(libclarabel_c INTERFACE)
 
 # Set the build flags and output directory
 
+set(clarabel_c_build_flags "")
+
+set(clarabel_c_target_specialization "")
+
+if(CMAKE_CROSSCOMPILING)
+  if($ENV{CROSS_TRIPLE} STREQUAL "x86_64-w64-mingw32.shared.posix")
+    set(CROSS_TARGET x86_64-pc-windows-gnu)
+    set(clarabel_c_build_flags "${clarabel_c_build_flags};--target=${CROSS_TARGET}")
+    set(clarabel_c_target_specialization "/${CROSS_TARGET}")
+  endif()
+endif()
+
 # Debug/Release flags
 if(CMAKE_BUILD_TYPE MATCHES Release)
-   set(clarabel_c_build_flags "--release")
-   set(clarabel_c_output_directory "${CMAKE_SOURCE_DIR}/rust_wrapper/target/release")
+   set(clarabel_c_build_flags "${clarabel_c_build_flags};--release")
+   set(clarabel_c_output_directory "${CMAKE_SOURCE_DIR}/rust_wrapper/target${clarabel_c_target_specialization}/release")
 else()
-    set(clarabel_c_build_flags "")
-    set(clarabel_c_output_directory "${CMAKE_SOURCE_DIR}/rust_wrapper/target/debug")
+    set(clarabel_c_output_directory "${CMAKE_SOURCE_DIR}/rust_wrapper/target${clarabel_c_target_specialization}/debug")
 endif()
 
 set(CLARABEL_C_OUTPUT_DIR ${clarabel_c_output_directory} PARENT_SCOPE)
+
 
 
 # -------------------------------------
@@ -71,7 +83,7 @@ add_custom_target(
     libclarabel_c_external
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/rust_wrapper
     # Commands for building the Rust library
-    COMMAND cargo build ${clarabel_c_build_flags}
+    COMMAND cargo build -v ${clarabel_c_build_flags}
     COMMAND cargo install cbindgen --version 0.24.5
     # Generate the C header
     COMMAND cbindgen --config cbindgen.toml --crate clarabel_c --output ./headers/clarabel.h --lang c
@@ -86,7 +98,7 @@ if(BUILD_SHARED_LIBS)
   elseif(UNIX)
       set(LIBCLARABEL_C_PATH "${clarabel_c_output_directory}/libclarabel_c.so")
   elseif(WIN32)
-      set(LIBCLARABEL_C_PATH "${clarabel_c_output_directory}/clarabel_c.dll.lib")
+      set(LIBCLARABEL_C_PATH "${clarabel_c_output_directory}/clarabel_c.dll")
   endif()
 else()
   # Get the path to the Rust library for linking
